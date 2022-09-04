@@ -8,8 +8,7 @@ use Illuminate\Http\Request;
 
 class BooksController extends Controller
 {
-    public function __construct
-    (
+    public function __construct (
         protected Book $book
     ) {}
     
@@ -22,5 +21,11 @@ class BooksController extends Controller
     {
         $book = $this->book->find($id);
         return response()->json($book);
+    }
+
+    public function store(Request $r)
+    {
+        $book = $this->book->create($r->all());
+        return response()->json($book, 201);
     }
 }
