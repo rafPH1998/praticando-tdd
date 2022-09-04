@@ -46,7 +46,7 @@ class BooksControllerTest extends TestCase
 
     public function test_get_single_book_endpoint()
     {
-        $book = Book::factory(1)->createOne();
+        $book = Book::factory(1)->createOne(); //vai criar na base
 
         $response = $this->getJson("/api/books/{$book->id}");
 
@@ -66,6 +66,31 @@ class BooksControllerTest extends TestCase
                 'id'    => $book->id,
                 'title' => $book->title,
                 'isbn'  => $book->isbn
+            ]);
+        });
+    }
+
+    public function test_post_books_endpoint()
+    {
+        $book = Book::factory(1)->makeOne()->toArray();
+
+        $response = $this->postJson('/api/books', $book);
+
+        $response->assertStatus(201);
+
+        $response->assertJson(function (AssertableJson $json) use ($book) {
+
+            $json->hasAll(['id', 'title', 'isbn'])->etc();
+
+            $json->whereAllType([
+                'id'    => 'integer',
+                'title' => 'string',
+                'isbn'  => 'string'
+            ]);
+
+            $json->whereAll([
+                'title' => $book['title'],
+                'isbn'  => $book['isbn']
             ]);
         });
     }
