@@ -94,4 +94,59 @@ class BooksControllerTest extends TestCase
             ]);
         });
     }
+
+    public function test_post_validation_when_try_create_a_invalid_book()
+    {
+
+        $response = $this->postJson('/api/books', []);
+
+        $response->assertStatus(422);
+
+        $response->assertJson(function (AssertableJson $json) {
+
+            $json->hasAll(['message', 'errors']);
+
+            $json->where('errors.title.0', 'Campo obrigátório!')
+                ->where('errors.isbn.0', 'Campo obrigátório!');
+        });
+    }
+
+    public function test_put_book_endpoint()
+    {
+        Book::factory(1)->create();
+
+        $book = [
+            'title' => 'Atualizando livro',
+            'isbn' => 'Salve teste',
+        ];
+
+        $response = $this->putJson('/api/books/1', $book);
+
+        $response->assertStatus(200);
+
+        $response->assertJson(function (AssertableJson $json) use ($book) {
+
+            $json->hasAll(['id', 'title', 'isbn'])->etc();
+
+            $json->whereAllType([
+                'id'    => 'integer',
+                'title' => 'string',
+                'isbn'  => 'string'
+            ]);
+
+            $json->whereAll([
+                'title' => $book['title'],
+                'isbn'  => $book['isbn']
+            ]);
+        });
+    }
+
+    public function test_delete_book_endpoint()
+    {
+        Book::factory(1)->create();
+
+        $response = $this->deleteJson('/api/books/1');
+
+        $response->assertStatus(204);
+    }
 }
