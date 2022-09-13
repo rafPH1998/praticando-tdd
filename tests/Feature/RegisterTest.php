@@ -19,7 +19,8 @@ class RegisterTest extends TestCase
         $return = $this->post(route('register'), [
             'name' => 'Rafael Silva',
             'email' => 'rafaelb89.rb@gmail.com',
-            'password' => '12345'
+            'email_confirmation' => 'rafaelb89.rb@gmail.com',
+            'password' => '12345aB'
         ]);
 
         //Assert
@@ -34,18 +35,18 @@ class RegisterTest extends TestCase
         $user = User::whereEmail('rafaelb89.rb@gmail.com')->firstOrFail();
 
         $this->assertTrue(
-            Hash::check('12345', $user->password),
+            Hash::check('12345aB', $user->password),
             'checando se a senha foi critografada'
         );
     }
 
-    public function test_name_should_have_a_max_of_255_characters()
+    public function test_name_should_have_a_max_of_20_characters()
     {
         $this->post(route('register'), [
-            'name' => str_repeat('a', 300)
+            'name' => str_repeat('a', 30)
         ])
         ->assertSessionHasErrors([
-            'name' => __('validation.max.string', ['attribute' => 'name', 'max' => 255]),
+            'name' => __('validation.max.string', ['attribute' => 'name', 'max' => 20]),
         ]);
     }
 
@@ -57,18 +58,66 @@ class RegisterTest extends TestCase
         ]);
     }
 
-    // public function test_email_should_be_required()
-    // {
-        
-    // }
+    public function test_email_should_be_required()
+    {
+        $this->post(route('register'), [])
+            ->assertSessionHasErrors([
+                'email' => __('validation.required', ['attribute' => 'email']),
+        ]);
+    }
 
-    // public function test_email_should_be_a_valid_email()
-    // {
-        
-    // }
+    public function test_email_should_be_a_valid_email()
+    {
+        $this->post(route('register'), ['email' => 'dasdasdasadsm'])
+            ->assertSessionHasErrors([
+                'email' => __('validation.email', ['attribute' => 'email']),
+            ]);
+    }
 
-    // public function test_email_should_be_unique()
-    // {
-        
-    // }
+    public function test_email_should_be_unique()
+    {
+        //arrange
+        User::factory()->create(['email' => 'rafaelb89@gmail.com']);
+
+        //action
+        $this->post(route('register'), [
+            'email' => 'rafaelb89@gmail.com'
+        ])
+        //assert
+        ->assertSessionHasErrors([
+            'email' => __('validation.unique', ['attribute' => 'email']),
+        ]);
+    }
+
+    public function test_email_should_be_confirmed()
+    {
+        $this->post(route('register'), [
+            'email'              => 'rafaelb89@gmail.com',
+            'email_confirmation' => '',
+        ])
+        ->assertSessionHasErrors([
+            'email' => __('validation.confirmed', ['attribute' => 'email']),
+        ]);
+    }
+
+
+    public function test_password_have_at_least_1_uppercase()
+    {
+        $this->post(route('register', [
+            'password' => 'password-without-uppercase'
+        ]))
+        ->assertSessionHasErrors([
+            'password' => 'The password must contain at least one uppercase and one lowercase letter.'
+        ]);
+    }
+
+     public function test_password_should_be_required()
+    {
+        $this->post(route('register'), [])
+            ->assertSessionHasErrors([
+                'password' => __('validation.required', ['attribute' => 'password']),
+        ]);
+    }
+
+
 }
