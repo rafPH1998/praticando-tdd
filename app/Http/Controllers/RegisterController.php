@@ -19,7 +19,7 @@ class RegisterController extends Controller
         $data = $request->all();
 
         $data['password'] = bcrypt($request->password);
-        User::create($data);
+        User::query()->create($data);
     
         return redirect()->route('home');
     }
