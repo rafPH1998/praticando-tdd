@@ -2,7 +2,11 @@
 
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Todo\CreateController;
+use App\Http\Controllers\Testecontroller;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/teste', [Testecontroller::class, 'index']);
+Route::post('/teste', [Testecontroller::class, 'store'])->name('teste.store');
 
 Route::post('register', RegisterController::class)->name('register');
 Route::get('home', RegisterController::class)->name('home');
