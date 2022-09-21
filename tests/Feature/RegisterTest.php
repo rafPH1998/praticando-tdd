@@ -23,6 +23,8 @@ class RegisterTest extends TestCase
             'password' => '12345aB'
         ]);
 
+        // 'password_confirmation' => '12345aB'
+
         //Assert
         $return->assertRedirect('home');
 
